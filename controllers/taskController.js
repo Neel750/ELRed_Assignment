@@ -1,6 +1,7 @@
 /** @format */
 
 const taskModel = require("../models/taskModel");
+const httpStatusCodes = require("../utilities/status-codes");
 
 //TODO: Add new Task
 //request parameters: Date,Task,Status,Priority
@@ -22,20 +23,20 @@ exports.createTask = async (request, response) => {
       priority: priority,
     });
     if (result) {
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: true,
         reason: "Task added Successfully!",
         data: result,
       });
     } else {
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: false,
         reason: "Something went wrong",
       });
     }
   } catch (error) {
     console.log(error);
-    response.status(500).json({
+    response.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       reason: "Internal server error",
     });
@@ -76,19 +77,19 @@ exports.getAllTask = async (request, response) => {
       { $limit: 10 },
     ]);
     if (result) {
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: true,
         data: result,
       });
     } else {
-      response.status(400).json({
+      response.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         reason: "Something went wrong",
       });
     }
   } catch (error) {
     console.log(error);
-    response.status(500).json({
+    response.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       reason: "Internal server error",
     });
@@ -109,26 +110,26 @@ exports.getTaskById = async (request, response) => {
       .limit(10);
     if (result) {
       if (result.length > 0) {
-        response.status(200).json({
+        response.status(httpStatusCodes.OK).json({
           success: true,
           data: result,
         });
       } else {
-        response.status(200).json({
+        response.status(httpStatusCodes.OK).json({
           success: true,
           reason: "No record found with this taskid",
           data: result,
         });
       }
     } else {
-      response.status(400).json({
+      response.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         reason: "Something went wrong",
       });
     }
   } catch (error) {
     console.log(error);
-    response.status(500).json({
+    response.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       reason: "Internal server error",
     });
@@ -142,7 +143,7 @@ exports.updateTaskById = async (request, response) => {
   try {
     let id = request.params.id || 0;
     if (id == 0) {
-      response.status(404).json({
+      response.status(httpStatusCodes.NOT_FOUND).json({
         success: true,
         message: "No data found",
       });
@@ -164,12 +165,12 @@ exports.updateTaskById = async (request, response) => {
         useFindAndModify: false,
       });
       if (result) {
-        response.status(200).json({
+        response.status(httpStatusCodes.OK).json({
           success: true,
           reason: "Update Successfully!",
         });
       } else {
-        response.status(400).json({
+        response.status(httpStatusCodes.BAD_REQUEST).json({
           success: false,
           reason: "Something went wrong",
         });
@@ -177,7 +178,7 @@ exports.updateTaskById = async (request, response) => {
     }
   } catch (error) {
     console.log(error);
-    response.status(500).json({
+    response.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       reason: "Internal server error",
     });
@@ -191,19 +192,19 @@ exports.deleteTaskById = async (request, response) => {
   try {
     let id = request.params.id || 0;
     if (id == 0) {
-      response.status(404).json({
+      response.status(httpStatusCodes.NOT_FOUND).json({
         success: true,
         message: "No data found",
       });
     } else {
       let result = await taskModel.findByIdAndRemove(id);
       if (result) {
-        response.status(200).json({
+        response.status(httpStatusCodes.OK).json({
           success: true,
           reason: "Task Deleted Successfully!",
         });
       } else {
-        response.status(400).json({
+        response.status(httpStatusCodes.BAD_REQUEST).json({
           success: false,
           reason: "Something went wrong",
         });
@@ -211,7 +212,7 @@ exports.deleteTaskById = async (request, response) => {
     }
   } catch (error) {
     console.log(error);
-    response.status(500).json({
+    response.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       reason: "Internal server error",
     });
@@ -242,19 +243,19 @@ exports.changeOrderOfTask = async (request, response) => {
       }
     }
     if (count == orderIds.length) {
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: true,
         reason: "Task Order Changed Successfully!",
       });
     } else {
-      response.status(400).json({
+      response.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         reason: "Something went wrong",
       });
     }
   } catch (error) {
     console.log(error);
-    response.status(500).json({
+    response.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       reason: "Internal server error",
     });

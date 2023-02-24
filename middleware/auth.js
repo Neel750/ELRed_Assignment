@@ -1,14 +1,19 @@
 /** @format */
 
 const jwt = require("jsonwebtoken");
-const secretKey = "YQW8DNEqFKp1hCyiYRSF9WhhJeIs5Kka";
-let tokenWhiteList = [];
+const config = require("../config");
+
 let validOTPs = [];
 //TODO: returns a new JWT tokens
 //param: userData that you want to encode as part of JWT token
-exports.getJWTToken = async (userData) => {
-  let token = jwt.sign(userData, secretKey);
-  if (tokenWhiteList.indexOf(token) === -1) tokenWhiteList.push(token);
+exports.getJWTToken = async (id) => {
+  let userData = {
+    userid: id,
+    tokenCreationDate: new Date().getTime().toString(),
+  };
+  let token = jwt.sign(userData, config.JWT_SECRET, {
+    expiresIn: config.JWT_EXPIRES_IN,
+  });
   return token;
 };
 
@@ -19,41 +24,31 @@ exports.verifyToken = (request, response, next) => {
   if (authHeader) {
     const token = authHeader.split(" ")[1];
     try {
-      if (tokenWhiteList.indexOf(token) !== -1) {
-        let result = jwt.verify(token, secretKey);
-        request.id = result;
-        next();
-      } else {
-        response.removeHeader("Authorization");
-        response.status(401).json({
+      let result = jwt.verify(token, config.JWT_SECRET);
+      request.id = result.userid;
+
+      let now = new Date().getTime() / 1000; // Convert current time to seconds
+      if (result.exp < now) {
+        response.status(httpStatusCodes.UNAUTHORIZED).json({
           success: false,
           reason: "Your are required to login",
         });
+      } else {
+        next();
       }
     } catch (error) {
-      response.status(500).json({
+      response.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         reason: "Something went wrong on server",
       });
       throw error();
     }
   } else {
-    response.status(401).json({
+    response.status(httpStatusCodes.UNAUTHORIZED).json({
       success: false,
       reason: "Authentication Header is missing",
     });
   }
-};
-
-exports.invalidate = async (request, response) => {
-  let jwtToken = request.headers.authorization.split(" ")[1];
-  let index = tokenWhiteList.indexOf(jwtToken);
-  if (index !== -1) {
-    response.removeHeader("Authorization");
-    tokenWhiteList.splice(index, 1);
-    return true;
-  }
-  return false;
 };
 
 exports.addOTP = async (otp, email) => {

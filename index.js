@@ -2,13 +2,9 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
 var mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
-var User = require("./models/userModel");
-const userModel = require("./models/userModel");
+const config = require("./config.js");
 const {
   createTask,
   getAllTask,
@@ -120,14 +116,13 @@ app.patch("/task/:id", verifyToken, async (req, res) => {
 app.delete("/task/:id", verifyToken, async (req, res) => {
   await deleteTaskById(req, res);
 });
+
 // Set `strictQuery: false` to globally opt into filtering by properties that aren't in the schema
 // Included because it removes preparatory warnings for Mongoose 7.
 // See: https://mongoosejs.com/docs/migrating_to_6.html#strictquery-is-removed-and-replaced-by-strict
 mongoose.set("strictQuery", false);
-
 // Define the database URL to connect to.
-const mongoDB =
-  "mongodb+srv://shahneel1562:mq9I3mwm76mNRgQx@cluster0.ascni7z.mongodb.net/?retryWrites=true&w=majority";
+const mongoDB = `mongodb+srv://${config.DB_USER}:${config.DB_PASS}@cluster0.ascni7z.mongodb.net/?retryWrites=true&w=majority`;
 mongoose
   .connect(mongoDB, {
     useNewUrlParser: true,
@@ -140,6 +135,6 @@ mongoose
     process.exit();
   });
 
-app.listen(process.env.port, () => {
-  console.log(`Server running @${process.env.port}`);
+app.listen(config.PORT, () => {
+  console.log(`Server running @${config.PORT}`);
 });

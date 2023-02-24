@@ -3,6 +3,7 @@
 const { getJWTToken, addOTP, verifyOPT } = require("../middleware/auth");
 const userModel = require("../models/userModel");
 const { sendOTPMail } = require("../utilities/mail");
+const httpStatusCodes = require("../utilities/status-codes");
 
 //TODO: Login user and send JWT token as cookie naed:AuthToken in response on successful login
 //request parameters:email, password
@@ -15,13 +16,13 @@ exports.login = async (request, response) => {
   });
   if (user && user.length > 0) {
     let token = await getJWTToken(user[0].id);
-    response.status(200).json({
+    response.status(httpStatusCodes.OK).json({
       success: true,
       reason: "login successful",
       token: token,
     });
   } else {
-    response.status(401).json({
+    response.status(httpStatusCodes.UNAUTHORIZED).json({
       success: false,
       reason: "Login Failed: Invalid Email or Password",
     });
@@ -47,20 +48,20 @@ exports.signUp = async (request, response) => {
         text: `OTP for recovering your account is:<b>${otp}</b>.<br>OTP is valid for 15mins`,
       };
       sendOTPMail(data);
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: true,
         reason: "OTP is send to entered email",
       });
     } else {
       // fs.unlink(request.file.path, (err) => { if (err) console.log(err) })
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: false,
         reason: "User registration failed",
       });
     }
   } else {
     // fs.unlink(request.file.path, (err) => { if (err) console.log(err) })
-    response.status(200).json({
+    response.status(httpStatusCodes.OK).json({
       success: false,
       reason: "Requires name, email and password as part of request body",
     });
@@ -80,18 +81,18 @@ exports.verifyOTP = async (request, response) => {
           useFindAndModify: false,
         }
       );
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: true,
         reason: "OTP is verified",
       });
     } else {
-      response.status(200).json({
+      response.status(httpStatusCodes.OK).json({
         success: false,
         reason: "OPT verification has failed",
       });
     }
   } else {
-    response.status(200).json({
+    response.status(httpStatusCodes.OK).json({
       success: false,
       reason: "Request Params Missing: otp and email in request body",
     });

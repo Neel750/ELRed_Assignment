@@ -1,18 +1,19 @@
 /** @format */
 
 const mail = require("nodemailer");
+const config = require("../config");
 const transporter = mail.createTransport({
   service: "gmail",
   auth: {
-    user: "170010116050@adit.ac.in",
-    pass: "Neel.it@50",
+    user: config.EMAIL,
+    pass: config.EMAIL_PASS,
   },
 });
 
 //OTP Sending Mail
 exports.sendOTPMail = (data) => {
   var mailOptions = {
-    from: "170010116050@adit.ac.in",
+    from: config.EMAIL,
     to: data.toMail,
     //Subject
     subject: "Your OTP",
